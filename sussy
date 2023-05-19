@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jumping Cube Game</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        // Get the canvas element
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game variables
+        let cubeX = 100;
+        let cubeY = canvas.height - 100;
+        let cubeWidth = 50;
+        let cubeHeight = 50;
+        let jumpHeight = 100;
+        let isJumping = false;
+        let jumpCount = 0;
+        const jumpLimit = 2;
+        let triangleX = canvas.width - 100;
+        let triangleY = canvas.height - 100;
+        let triangleWidth = 50;
+        let triangleHeight = 50;
+
+        // Keyboard state
+        const keys = {};
+
+        // Keyboard event listeners
+        window.addEventListener('keydown', (event) => {
+            keys[event.key] = true;
+        });
+
+        window.addEventListener('keyup', (event) => {
+            keys[event.key] = false;
+        });
+
+        // Game loop
+        function gameLoop() {
+            // Update
+            if (keys['ArrowLeft'] && cubeX > 0) {
+                cubeX -= 5;
+            }
+            if (keys['ArrowRight'] && cubeX + cubeWidth < canvas.width) {
+                cubeX += 5;
+            }
+
+            if (isJumping) {
+                if (jumpCount < jumpLimit) {
+                    cubeY -= 5;
+                    jumpCount++;
+                } else {
+                    isJumping = false;
+                    jumpCount = 0;
+                }
+            } else {
+                if (cubeY + cubeHeight < canvas.height) {
+                    cubeY += 5;
+                }
+            }
+
+            // Collision detection
+            if (
+                cubeX < triangleX + triangleWidth &&
+                cubeX + cubeWidth > triangleX &&
+                cubeY < triangleY + triangleHeight &&
+                cubeY + cubeHeight > triangleY
+            ) {
+                // Collision occurred
+                alert('Game Over!');
+                resetGame();
+            }
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the cube
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(cubeX, cubeY, cubeWidth, cubeHeight);
+
+            // Draw the triangle
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.moveTo(triangleX, triangleY);
+            ctx.lineTo(triangleX + triangleWidth / 2, triangleY - triangleHeight);
+            ctx.lineTo(triangleX + triangleWidth, triangleY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Request animation frame
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Game start
+        function startGame() {
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Reset game state
+        function resetGame() {
+            cubeX = 100;
+            cubeY = canvas.height - 100;
+            isJumping = false;
+        }
+
+        // Event listener for spacebar to jump
+        window.addEventListener('keydown', (event) => {
+            if (event.key === ' ') {
+                if (!isJumping) {
+                    isJumping = true;
+                }
+            }
+        });
+
+        // Start the game
+        startGame();
+    </script>
+</body>
+</html>
